@@ -1,0 +1,7 @@
+# 個人データ(書き出したJSON)を誤ってコミットしないため
+*.json
+!manifest.webmanifest
+kanazawa-shiori-*.json
+# OS
+.DS_Store
+Thumbs.db

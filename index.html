@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>金沢 旅のしおり</title>
+  <meta name="description" content="2泊3日の金沢旅行のしおりを作るWebアプリ">
+  <meta name="theme-color" content="#1f3d66">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/shiori.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-brand">
+        <span class="app-kicker">旅のしおり</span>
+        <h1 class="app-title" id="header-title">金沢 二人旅</h1>
+      </div>
+      <span class="app-period" id="header-period"></span>
+      <button type="button" class="btn header-btn" id="btn-data" aria-haspopup="dialog">⚙ データ</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="画面の切り替え">
+    <div class="tabs-inner" role="tablist">
+      <button type="button" role="tab" class="tab" data-tab="itinerary"><span class="tab-icon" aria-hidden="true">🗓️</span><span class="tab-label">行程</span></button>
+      <button type="button" role="tab" class="tab" data-tab="transport"><span class="tab-icon" aria-hidden="true">🚄</span><span class="tab-label">交通</span></button>
+      <button type="button" role="tab" class="tab" data-tab="stay"><span class="tab-icon" aria-hidden="true">🏨</span><span class="tab-label">宿・食事</span></button>
+      <button type="button" role="tab" class="tab" data-tab="packing"><span class="tab-icon" aria-hidden="true">🧳</span><span class="tab-label">持ち物</span></button>
+      <button type="button" role="tab" class="tab" data-tab="souvenir"><span class="tab-icon" aria-hidden="true">🎁</span><span class="tab-label">お土産</span></button>
+      <button type="button" role="tab" class="tab" data-tab="shiori"><span class="tab-icon" aria-hidden="true">📜</span><span class="tab-label">しおり</span></button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <section class="panel" id="panel-itinerary" data-panel="itinerary" role="tabpanel" hidden></section>
+    <section class="panel" id="panel-transport" data-panel="transport" role="tabpanel" hidden></section>
+    <section class="panel" id="panel-stay" data-panel="stay" role="tabpanel" hidden></section>
+    <section class="panel" id="panel-packing" data-panel="packing" role="tabpanel" hidden></section>
+    <section class="panel" id="panel-souvenir" data-panel="souvenir" role="tabpanel" hidden></section>
+    <section class="panel" id="panel-shiori" data-panel="shiori" role="tabpanel" hidden></section>
+  </main>
+
+  <!-- 編集フォーム・ビューア(中身はJSで生成) -->
+  <dialog id="dlg-form" class="dlg"></dialog>
+
+  <!-- データ管理 -->
+  <dialog id="dlg-data" class="dlg">
+    <div class="dlg-form">
+      <header class="dlg-head"><h2>データ管理</h2></header>
+      <div class="dlg-body">
+        <p class="note">データはこの端末のブラウザ内(localStorage)にだけ保存されます。別の端末へ移すときや、念のためのバックアップには「書き出し」を使ってください。</p>
+        <div class="data-actions">
+          <button type="button" class="btn btn-primary btn-block" data-act="export">📤 データを書き出す(JSON)</button>
+          <label class="btn btn-block file-btn">📥 データを読み込む(JSON)<input type="file" accept="application/json,.json" id="import-file" hidden></label>
+        </div>
+        <dl class="data-info">
+          <div><dt>最終保存</dt><dd id="info-saved">—</dd></div>
+          <div><dt>使用容量</dt><dd id="info-size">—</dd></div>
+        </dl>
+        <h3 class="sub-title">お試し・リセット</h3>
+        <div class="data-actions">
+          <button type="button" class="btn btn-block" data-act="sample">🧪 サンプルデータを読み込む(架空)</button>
+          <button type="button" class="btn btn-block btn-danger-outline" data-act="reset">🗑 すべてのデータを消す</button>
+        </div>
+      </div>
+      <footer class="dlg-foot"><span class="spacer"></span><button type="button" class="btn" data-act="close">閉じる</button></footer>
+    </div>
+  </dialog>
+
+  <!-- しおり画像の作成用(画面外) -->
+  <div id="capture-area" aria-hidden="true"></div>
+  <div id="busy" class="busy" hidden><div class="busy-box"><span class="spinner"></span><span id="busy-text">作成中…</span></div></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/util.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/sample.js"></script>
+  <script src="js/form.js"></script>
+  <script src="js/itinerary.js"></script>
+  <script src="js/transport.js"></script>
+  <script src="js/stay.js"></script>
+  <script src="js/packing.js"></script>
+  <script src="js/souvenir.js"></script>
+  <script src="js/shiori.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
