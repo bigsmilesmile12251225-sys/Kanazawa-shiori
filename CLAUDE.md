@@ -108,11 +108,12 @@
 - [x] 段階7: しおり(A4プレビュー、PDF、スマホPNG、画像の保存・共有)
 - [x] README(GitHub Pagesの公開手順、バックアップ方法)/ CLAUDE.md
 - [x] Playwright で動作確認(タブレット横 1180px / タブレット縦 820px / スマホ 390px、PDF、PNG)
+- [x] GitHub に push(`bigsmilesmile12251225-sys/Kanazawa-shiori`)し、Pages を有効化(https://bigsmilesmile12251225-sys.github.io/Kanazawa-shiori/)
+- [x] iPad エミュレーション(Chromium、タッチ・Retina・縦820px/横1180px、Pagesと同じ `/Kanazawa-shiori/` 配下で配信)でタップ操作を確認し、40項目すべて合格。ただし Safari(WebKit)の実機ではまだ確認していない
 
 ## 次にやること(アイデア・未着手)
 
-- 実機確認: iPad Safari の印刷→PDF、iPhone の共有シートで画像を保存
-- GitHub に push して Pages を有効にする(README の手順どおり)
+- 実機確認(Safari): iPad の印刷→PDF、iPhone の共有シートで画像を保存、日付・時刻入力、写真選択、ホーム画面に追加
 - 必要なら: 持ち物の名前変更・並べ替え、行程のドラッグでの並べ替え、オフライン対応(Service Worker)、html2canvas をリポジトリに同梱してオフラインでもPNGを作れるようにする
 
 ## 既知の制約
