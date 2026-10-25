@@ -4,7 +4,7 @@
   const { U } = App;
 
   App.modules = App.modules || {};
-  const TAB_KEYS = ['itinerary', 'transport', 'stay', 'packing', 'souvenir', 'shiori'];
+  const TAB_KEYS = ['itinerary', 'transport', 'stay', 'packing', 'todo', 'souvenir', 'shiori'];
   const panel = (key) => document.getElementById('panel-' + key);
 
   App.render = () => {
@@ -40,6 +40,11 @@
     const e = U.dayDate(startDate, U.DAYS - 1);
     document.getElementById('header-period').textContent = s ? `${U.fmtMD(s)}〜${U.fmtMD(e)}` : '';
     document.title = (title || '旅のしおり') + ' | 旅のしおり';
+    // 「やること」タブに未完了の件数を表示
+    const n = App.modules.todo.openCount();
+    const badge = document.getElementById('todo-badge');
+    badge.hidden = n === 0;
+    badge.textContent = n > 99 ? '99+' : n;
   }
   App.renderHeader = renderHeader;
 

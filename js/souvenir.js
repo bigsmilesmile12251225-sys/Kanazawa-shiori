@@ -23,7 +23,7 @@
     { key: 'bought', label: '購入済み', type: 'checkbox' },
     { key: 'photo', label: '写真(1枚)', type: 'photo', full: true, hint: '保存容量を節約するため、自動で小さくします' },
     { key: 'url', label: '商品URL', type: 'url', full: true, placeholder: 'https://…' },
-    { key: 'memo', label: 'メモ', type: 'textarea', full: true },
+    { key: 'memo', label: 'メモ', type: 'textarea', full: true, hint: '⚠️ を付けた行は「やること」に集まります(しおりには載りません)' },
   ];
 
   M.totals = (list) => {
@@ -47,6 +47,8 @@
       onDelete: found ? () => remove(found) : null,
     });
   }
+
+  M.edit = (id) => openEdit(id);
 
   function remove(s) {
     App.data.souvenirs = App.data.souvenirs.filter((x) => x !== s);
@@ -72,7 +74,7 @@
               <span>予算 <b>${U.hasValue(s.budget) ? U.yen(s.budget) : '—'}</b></span>
               <span>実額 <b class="${over ? 'sv-over' : ''}">${U.hasValue(s.actual) ? U.yen(s.actual) : '—'}</b>${over ? '<span class="sv-over">(予算オーバー)</span>' : ''}</span>
             </div>
-            ${s.memo ? `<div class="ic-memo">${U.escBr(s.memo)}</div>` : ''}
+            ${s.memo ? `<div class="ic-memo">${App.memoHtml(s.memo, s.id)}</div>` : ''}
             ${url ? `<div class="ic-links">${U.link(url, '🔗 商品ページ', 'mini-link')}</div>` : ''}
           </div>
         </div>

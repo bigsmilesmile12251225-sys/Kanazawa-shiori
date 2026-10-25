@@ -1,5 +1,6 @@
 /* ⑥ しおり: A4プレビュー / PDF(印刷) / スマホ用PNG
  * 対象は 行程・交通・宿泊/食事・持ち物 のみ(お土産は含めない)
+ * メモの「⚠️」の行(事前のやること)は、標準ではしおりに載せない
  */
 (function (App) {
   'use strict';
@@ -14,6 +15,7 @@
   const PHONE_BG = '#fbf7ee';
   const MAX_PIXELS = 16000000; // iOS Safariのcanvas上限(約1677万px)より少し小さく
   const KANJI_DAY = ['一日目', '二日目', '三日目'];
+  const DAY_MESSAGE = ['いざ、金沢へ。', '旅はまだまだ、これから。', 'おかえりなさい。また来ようね。'];
 
   const OPTS = [
     ['cover', '表紙・概要'],
@@ -22,15 +24,76 @@
     ['transport', '交通'],
     ['stay', '宿泊・食事'],
     ['packing', '持ち物'],
+    ['todoInShiori', 'メモの⚠️(やること)も載せる'],
   ];
+
+  // 表紙のイラスト: 金箔の太陽・白山・雪吊りの松・ことじ灯籠・霞ヶ池・新幹線
+  const ILLUST = `
+    <svg class="sh-illust-svg" viewBox="0 0 600 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="兼六園と新幹線のイラスト">
+      <defs>
+        <linearGradient id="shGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#f6e7b4"/><stop offset=".55" stop-color="#dcbc68"/><stop offset="1" stop-color="#b28b36"/>
+        </linearGradient>
+      </defs>
+      <circle cx="470" cy="66" r="46" fill="url(#shGold)"/>
+      <circle cx="470" cy="66" r="54" fill="none" stroke="#dcbc68" stroke-width="1.5" stroke-dasharray="2 7"/>
+      <path d="M0 150 L70 114 L118 128 L196 78 L262 120 L330 100 L404 132 L470 110 L540 128 L600 118 V210 H0Z" fill="#dfe6ef"/>
+      <path d="M196 78 L180 89 L189 92 L196 87 L204 93 L213 89Z" fill="#fff"/>
+      <path d="M330 100 L318 108 L326 110 L331 106 L338 111 L343 108Z" fill="#fff"/>
+      <rect x="0" y="158" width="600" height="52" fill="#cddbea"/>
+      <g fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".9">
+        <path d="M20 172 q10 -6 20 0 t20 0"/><path d="M150 184 q10 -6 20 0 t20 0"/>
+        <path d="M300 170 q10 -6 20 0 t20 0"/><path d="M420 180 q10 -6 20 0 t20 0"/><path d="M530 168 q10 -6 20 0 t20 0"/>
+      </g>
+      <rect x="104" y="112" width="8" height="50" fill="#7a5a3a"/>
+      <ellipse cx="108" cy="124" rx="64" ry="16" fill="#4a6536"/>
+      <ellipse cx="108" cy="105" rx="48" ry="13" fill="#5a7843"/>
+      <ellipse cx="108" cy="89" rx="31" ry="10" fill="#6a8a50"/>
+      <g stroke="#c9a96e" stroke-width="1.1">
+        <line x1="108" y1="28" x2="46" y2="126"/><line x1="108" y1="28" x2="60" y2="132"/><line x1="108" y1="28" x2="76" y2="137"/>
+        <line x1="108" y1="28" x2="92" y2="139"/><line x1="108" y1="28" x2="124" y2="139"/><line x1="108" y1="28" x2="140" y2="137"/>
+        <line x1="108" y1="28" x2="156" y2="132"/><line x1="108" y1="28" x2="170" y2="126"/>
+      </g>
+      <line x1="108" y1="24" x2="108" y2="112" stroke="#8a6a44" stroke-width="2.4"/>
+      <ellipse cx="262" cy="160" rx="24" ry="7" fill="#8f8a80"/>
+      <line x1="232" y1="118" x2="221" y2="178" stroke="#5f5a52" stroke-width="5" stroke-linecap="round"/>
+      <line x1="256" y1="118" x2="262" y2="156" stroke="#5f5a52" stroke-width="5" stroke-linecap="round"/>
+      <rect x="228" y="100" width="32" height="20" rx="2" fill="#6f6a62"/>
+      <rect x="237" y="105" width="14" height="10" fill="#f3d27a"/>
+      <path d="M206 103 Q244 78 282 103 Z" fill="#5f5a52"/>
+      <circle cx="244" cy="84" r="5" fill="#5f5a52"/>
+      <rect x="0" y="197" width="600" height="3" fill="#8f8478"/>
+      <path d="M300 176 H520 C556 176 580 184 594 195 H300 Z" fill="#fff" stroke="#b9c4d2" stroke-width="1.2"/>
+      <path d="M300 186 H566 L576 190 H300 Z" fill="#2c5282"/>
+      <rect x="300" y="191" width="280" height="2" fill="#b0703a"/>
+      <g fill="#9fb3cc">
+        <rect x="312" y="179" width="11" height="5" rx="1"/><rect x="332" y="179" width="11" height="5" rx="1"/><rect x="352" y="179" width="11" height="5" rx="1"/>
+        <rect x="372" y="179" width="11" height="5" rx="1"/><rect x="392" y="179" width="11" height="5" rx="1"/><rect x="412" y="179" width="11" height="5" rx="1"/>
+        <rect x="432" y="179" width="11" height="5" rx="1"/><rect x="452" y="179" width="11" height="5" rx="1"/><rect x="472" y="179" width="11" height="5" rx="1"/>
+        <path d="M528 179 H548 L556 184 H528 Z"/>
+      </g>
+      <g fill="#d8bf86">
+        <rect x="380" y="34" width="7" height="7" transform="rotate(20 383 37)"/><rect x="545" y="40" width="6" height="6" transform="rotate(35 548 43)"/>
+        <rect x="410" y="118" width="5" height="5" transform="rotate(10 412 120)"/><rect x="300" y="44" width="5" height="5" transform="rotate(40 302 46)"/>
+        <rect x="40" y="40" width="6" height="6" transform="rotate(25 43 43)"/><rect x="180" y="30" width="4" height="4" transform="rotate(15 182 32)"/>
+      </g>
+    </svg>`;
 
   const opts = () => Object.assign(App.defaultUi().shioriOpts, App.ui.shioriOpts);
   const start = () => App.data.trip.startDate;
   const title = () => App.data.trip.title || '旅のしおり';
   const kv = (k, v) => (v ? `<div class="sh-kv"><span class="sh-k">${k}</span><span class="sh-v">${v}</span></div>` : '');
+  const h2 = (icon, text) => `<h2 class="sh-h2"><span class="sh-h2-icon">${icon}</span>${text}</h2>`;
+  const yenOrEmpty = (v) => (U.hasValue(v) ? U.yen(v) : '');
+  // ⚠️の行(事前のやること)は、設定でオンにしない限り載せない
+  const memo = (text) => U.escBr(opts().todoInShiori ? text : App.memoForShiori(text));
   // PDFでは地図をリンクにする(画像では押せないので文字だけ)
   const linkOrText = (href, text, mode) =>
     href && mode === 'a4' ? `<a href="${U.esc(href)}" target="_blank" rel="noopener">${text}</a>` : text;
+
+  // その日の見どころ(移動・宿泊以外のタイトル)
+  const highlights = (day) =>
+    App.data.itinerary[day].filter((it) => !['move', 'stay'].includes(it.type)).map((it) => it.title).filter(Boolean);
 
   /* ---------- 表紙・概要 ---------- */
   function coverHtml(mode) {
@@ -38,15 +101,17 @@
     const s = U.dayDate(start(), 0);
     const e = U.dayDate(start(), U.DAYS - 1);
     const dateText = s ? `${U.fmtYMD(s)} 〜 ${U.fmtMDLong(e)}` : '日程未設定';
+    const catchphrase = d.trip.catchphrase.trim();
 
     const overview = d.itinerary.map((items, i) => {
       const main = items.filter((it) => it.type !== 'move');
-      const titles = (main.length ? main : items).map((it) => U.esc(it.title)).filter(Boolean);
+      const spots = (main.length ? main : items).filter((it) => it.title)
+        .map((it) => `<span class="sh-spot">${App.typeOf(it.type).icon} ${U.esc(it.title)}</span>`);
       const date = U.dayDate(start(), i);
       return `
-        <div class="sh-ov-row">
+        <div class="sh-ov-row d${i + 1}">
           <div class="sh-ov-day"><b>${KANJI_DAY[i]}</b>${date ? `<span>${U.fmtMD(date)}</span>` : ''}</div>
-          <div class="sh-ov-body">${titles.length ? titles.join('<span class="sh-sep">・</span>') : '<span class="sh-muted">予定なし</span>'}</div>
+          <div class="sh-ov-body">${spots.length ? spots.join('') : '<span class="sh-muted">予定なし</span>'}</div>
         </div>`;
     }).join('');
 
@@ -62,17 +127,25 @@
 
     return `
       <div class="sh-cover">
+        <div class="sh-stamp" aria-hidden="true"><span>金沢</span></div>
         <p class="sh-kicker">旅のしおり</p>
         <h1 class="sh-cover-title">${U.esc(title())}</h1>
-        <div class="sh-ornament" aria-hidden="true"><i></i><b></b><i></i></div>
-        <p class="sh-cover-date">${U.esc(dateText)}</p>
-        <p class="sh-cover-sub">二泊三日${d.trip.members ? `<span class="sh-sep">|</span>${U.esc(d.trip.members)}` : ''}</p>
+        ${catchphrase ? `<p class="sh-catch">〜 ${U.esc(catchphrase)} 〜</p>` : ''}
+        <div class="sh-illust">${ILLUST}</div>
+        <div class="sh-ticket">
+          <div class="sh-ticket-main">
+            <div class="sh-ticket-label"><span class="sh-ticket-badge">旅の切符</span><b>金沢 ゆき</b></div>
+            <div class="sh-ticket-date">${U.esc(dateText)}</div>
+            <div class="sh-ticket-sub">二泊三日${d.trip.members ? ` ・ ${U.esc(d.trip.members)}` : ''}</div>
+          </div>
+          <div class="sh-ticket-stub"><span>有効</span><b>3</b><span>日間</span></div>
+        </div>
       </div>
       <section class="sh-block">
-        <h2 class="sh-h2">旅程の概要</h2>
+        ${h2('🗺️', '旅のみどころ')}
         <div class="sh-overview">${overview}</div>
       </section>
-      ${hotels ? `<section class="sh-block"><h2 class="sh-h2">お宿</h2>${hotels}</section>` : ''}`;
+      ${hotels ? `<section class="sh-block">${h2('🏨', 'お宿')}${hotels}</section>` : ''}`;
   }
 
   /* ---------- 各日の行程 ---------- */
@@ -92,7 +165,7 @@
     rows.sort((a, b) => a.key.localeCompare(b.key));
     return `
       <div class="sh-extras">
-        <h3 class="sh-h3">この日の交通・予約</h3>
+        <div class="sh-extras-title">🎫 この日の交通・予約</div>
         ${rows.map((r) => `<div class="sh-x-row">${r.html}</div>`).join('')}
       </div>`;
   }
@@ -100,25 +173,36 @@
   function dayHtml(day, mode, o) {
     const items = App.data.itinerary[day];
     const date = U.dayDate(start(), day);
+    const hl = highlights(day).slice(0, 4).map(U.esc).join(' ・ ');
     const rows = items.map((it) => {
       const t = App.typeOf(it.type);
       const href = U.mapHref(it.mapUrl, it.place);
+      const m = memo(it.memo);
       return `
         <div class="sh-row t-${t.key}">
           <div class="sh-time">${U.esc(it.time)}</div>
-          <div class="sh-line"><span class="sh-dot"></span></div>
+          <div class="sh-line"><span class="sh-icon">${t.icon}</span></div>
           <div class="sh-content">
             <div class="sh-title-line"><span class="sh-type">${t.label}</span><span class="sh-title">${U.esc(it.title)}</span></div>
-            ${it.place ? `<div class="sh-place">${linkOrText(href, U.esc(it.place), mode)}${href && mode === 'a4' ? '<span class="sh-maplabel">(地図)</span>' : ''}</div>` : ''}
-            ${it.memo ? `<div class="sh-memo">${U.escBr(it.memo)}</div>` : ''}
+            ${it.place ? `<div class="sh-place">📍 ${linkOrText(href, U.esc(it.place), mode)}</div>` : ''}
+            ${m ? `<div class="sh-memo">${m}</div>` : ''}
           </div>
         </div>`;
     }).join('');
     return `
-      <section class="sh-day">
-        <h2 class="sh-day-title"><span class="sh-day-num">${KANJI_DAY[day]}</span><span class="sh-day-date">${date ? U.fmtMDLong(date) : ''}</span></h2>
+      <section class="sh-day d${day + 1}">
+        <div class="sh-day-head">
+          <div class="sh-day-badge"><span>DAY</span><b>${day + 1}</b></div>
+          <div class="sh-day-headtext">
+            <h2 class="sh-day-title"><span class="sh-day-num">${KANJI_DAY[day]}</span><span class="sh-day-date">${date ? U.fmtMDLong(date) : ''}</span></h2>
+            ${hl ? `<div class="sh-day-hl">${hl}</div>` : ''}
+          </div>
+        </div>
         ${rows ? `<div class="sh-tl">${rows}</div>` : '<p class="sh-muted">予定はまだありません</p>'}
-        ${o.dayExtras ? extrasHtml(day) : ''}
+        <div class="sh-day-foot">
+          ${o.dayExtras ? extrasHtml(day) : ''}
+          <p class="sh-day-msg">${DAY_MESSAGE[day]}</p>
+        </div>
       </section>`;
   }
 
@@ -138,7 +222,7 @@
               <td>${U.esc(t.trainName)}</td>
               <td>${U.esc(t.seat)}</td>
               <td>${U.esc(t.method)}</td>
-              <td class="num">${U.hasValue(t.price) ? U.yen(t.price) : ''}</td>
+              <td class="num">${yenOrEmpty(t.price)}</td>
             </tr>`).join('')}</tbody>
           <tfoot><tr><td colspan="5">合計</td><td class="num">${U.yen(total)}</td></tr></tfoot>
         </table>`
@@ -150,11 +234,11 @@
               ${kv('列車名', U.esc(t.trainName))}
               ${kv('号車・座席', U.esc(t.seat))}
               ${kv('乗車方法', U.esc(t.method))}
-              ${kv('金額', U.hasValue(t.price) ? U.yen(t.price) : '')}
+              ${kv('金額', yenOrEmpty(t.price))}
             </div>
           </div>`).join('')}
           <div class="sh-total"><span>合計</span><b>${U.yen(total)}</b></div>`;
-    return `<section class="sh-block"><h2 class="sh-h2">交通</h2>${body}</section>`;
+    return `<section class="sh-block">${h2('🚄', '交通')}${body}</section>`;
   }
 
   /* ---------- 宿泊・食事 ---------- */
@@ -167,36 +251,60 @@
         <div class="sh-kvs">
           ${kv('チェックイン', U.esc(h.checkIn))}
           ${kv('チェックアウト', U.esc(h.checkOut))}
+          ${kv('金額', yenOrEmpty(h.price))}
           ${kv('住所', h.address ? linkOrText(S.hotelMap(h), U.esc(h.address), mode) : '')}
           ${kv('電話', U.esc(h.phone))}
-          ${kv('メモ', U.escBr(h.memo))}
+          ${kv('メモ', memo(h.memo))}
         </div>
       </div>`).join('');
 
     const rests = U.sortByDayTime(d.restaurants, 'time');
     const restHtml = !rests.length ? '' : mode === 'a4'
       ? `<table class="sh-table">
-          <thead><tr><th>日時</th><th>店名</th><th>人数</th><th>電話</th><th>メモ</th></tr></thead>
+          <thead><tr><th>日時</th><th>店名</th><th>人数</th><th>電話</th><th class="num">金額</th><th>メモ</th></tr></thead>
           <tbody>${rests.map((r) => `
             <tr>
               <td class="nowrap">${U.esc(U.dayLabel(start(), r.day))}<br>${U.esc(r.time)}</td>
               <td><b>${linkOrText(U.mapHref(r.mapUrl, r.name), U.esc(r.name), mode)}</b></td>
               <td class="nowrap">${r.people ? `${U.esc(r.people)}名` : ''}</td>
               <td class="nowrap">${U.esc(r.phone)}</td>
-              <td>${U.escBr(r.memo)}</td>
+              <td class="num">${yenOrEmpty(r.price)}</td>
+              <td>${memo(r.memo)}</td>
             </tr>`).join('')}</tbody>
         </table>`
       : rests.map((r) => `
           <div class="sh-card">
             <div class="sh-card-when">${U.esc(S.restaurantWhen(r))}</div>
             <div class="sh-card-title">${U.esc(r.name)}${r.people ? `<span class="sh-tag">${U.esc(r.people)}名</span>` : ''}</div>
-            <div class="sh-kvs">${kv('電話', U.esc(r.phone))}${kv('メモ', U.escBr(r.memo))}</div>
+            <div class="sh-kvs">${kv('金額', yenOrEmpty(r.price))}${kv('電話', U.esc(r.phone))}${kv('メモ', memo(r.memo))}</div>
           </div>`).join('');
 
     if (!hotels && !restHtml) return '';
     return `
-      ${hotels ? `<section class="sh-block"><h2 class="sh-h2">宿泊</h2>${hotels}</section>` : ''}
-      ${restHtml ? `<section class="sh-block"><h2 class="sh-h2">食事の予約</h2>${restHtml}</section>` : ''}`;
+      ${hotels ? `<section class="sh-block">${h2('🏨', '宿泊')}${hotels}</section>` : ''}
+      ${restHtml ? `<section class="sh-block">${h2('🍽️', '食事の予約')}${restHtml}</section>` : ''}`;
+  }
+
+  /* ---------- 旅費のまとめ ---------- */
+  function costHtml(o) {
+    const c = App.modules.stay.costs();
+    const rows = [
+      o.transport ? ['🚄 交通', c.transport] : null,
+      o.stay ? ['🏨 宿泊', c.hotel] : null,
+      o.stay ? ['🍽️ 食事', c.food] : null,
+    ].filter((r) => r && r[1] > 0);
+    if (!rows.length) return '';
+    const total = rows.reduce((s, r) => s + r[1], 0);
+    return `
+      <section class="sh-block">
+        ${h2('💴', '旅費のまとめ')}
+        <div class="sh-cost">
+          ${rows.map((r) => `<div class="sh-cost-item"><span>${r[0]}</span><b>${U.yen(r[1])}</b></div>`).join('<span class="sh-cost-op">+</span>')}
+          <span class="sh-cost-op">=</span>
+          <div class="sh-cost-item total"><span>合計</span><b>${U.yen(total)}</b></div>
+        </div>
+        <div class="sh-small" style="margin-top:4px">※ お土産・現地での買い物は含みません</div>
+      </section>`;
   }
 
   /* ---------- 持ち物 ---------- */
@@ -204,12 +312,12 @@
     const cols = App.PACK_GROUPS.map((g) => {
       const items = App.data.packing[g.key];
       return `
-        <div class="sh-pack-col">
-          <h3 class="sh-h3">${g.label}</h3>
+        <div class="sh-pack-col p-${g.key}">
+          <h3 class="sh-pack-head">${g.label}</h3>
           ${items.length ? `<ul class="sh-checks">${items.map((it) => `<li class="${it.checked ? 'on' : ''}"><span class="sh-box">${it.checked ? '✓' : ''}</span><span>${U.esc(it.name)}</span></li>`).join('')}</ul>` : '<p class="sh-muted">なし</p>'}
         </div>`;
     }).join('');
-    return `<section class="sh-block"><h2 class="sh-h2">持ち物</h2><div class="sh-pack">${cols}</div></section>`;
+    return `<section class="sh-block">${h2('🧳', '持ち物チェック')}<div class="sh-pack">${cols}</div><p class="sh-day-msg">忘れ物はないかな? いってらっしゃい!</p></section>`;
   }
 
   // ページ単位のHTML。PDFでは1ページ目から順に、画像では1枚ずつになる
@@ -221,7 +329,7 @@
       [0, 1, 2].forEach((i) => pages.push({ key: `day${i + 1}`, name: U.dayLabel(start(), i), html: dayHtml(i, mode, o) }));
     }
     const info = [o.transport ? transportHtml(mode) : '', o.stay ? stayHtml(mode) : ''].join('').trim();
-    if (info) pages.push({ key: 'info', name: '交通・宿・食事', html: info });
+    if (info) pages.push({ key: 'info', name: '交通・宿・食事', html: info + costHtml(o) });
     if (o.packing) pages.push({ key: 'packing', name: '持ち物', html: packingHtml() });
     return pages;
   };
@@ -253,9 +361,9 @@
           <summary>保存のしかた</summary>
           <ul>
             <li><b>PC(Chrome/Edge)</b>: 「PDFで保存・印刷」→ 送信先を「PDFに保存」→ 保存。用紙はA4・縦、「背景のグラフィック」をオンにすると色がきれいに出ます。</li>
-            <li><b>iPad / iPhone(Safari)</b>: 「PDFで保存・印刷」→ 共有ボタン →「ファイルに保存」、またはプレビューを2本指で広げるとPDFになります。</li>
+            <li><b>iPad / iPhone</b>: 「PDFで保存・印刷」→ 共有ボタン →「ファイルに保存」、またはプレビューを2本指で広げるとPDFになります。</li>
             <li><b>画像</b>: 作成後に「保存」または「共有」で写真やLINEへ。iPhoneでは画像を長押しして「写真に追加」もできます。</li>
-            <li>お土産のページはしおりに載りません。</li>
+            <li>お土産のページと、メモの⚠️の行(やること)はしおりに載りません(⚠️は上のチェックで載せることもできます)。</li>
           </ul>
         </details>
       </section>
@@ -302,7 +410,7 @@
       <div class="shiori phone">
         <div class="ph-head"><span class="ph-title">${U.esc(title())}</span>${pageName ? `<span class="ph-page">${U.esc(pageName)}</span>` : ''}</div>
         ${html}
-        <div class="ph-foot">旅のしおり</div>
+        <div class="ph-foot">― よい旅を ―</div>
       </div>`;
   }
 

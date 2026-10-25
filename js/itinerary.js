@@ -11,7 +11,7 @@
     { key: 'title', label: 'タイトル', type: 'text', required: true, full: true, placeholder: '例: 兼六園を散策' },
     { key: 'place', label: '場所', type: 'text', full: true, placeholder: '例: 兼六園' },
     { key: 'mapUrl', label: '地図(GoogleマップのURL)', type: 'url', full: true, placeholder: 'https://maps.app.goo.gl/…', hint: '空欄のときは「場所」の名前でGoogleマップを検索します' },
-    { key: 'memo', label: 'メモ', type: 'textarea', full: true },
+    { key: 'memo', label: 'メモ', type: 'textarea', full: true, hint: '⚠️ を付けた行は「やること」に集まります(しおりには載りません)' },
   ];
 
   // 時刻を見て、ちょうどよい位置に差し込む
@@ -81,7 +81,7 @@
         <div class="tl-main">
           <div class="tl-head"><span class="chip type-chip">${t.icon} ${t.label}</span><span class="tl-title">${U.esc(it.title)}</span></div>
           ${it.place || map ? `<div class="tl-place">${it.place ? `<span>📍 ${U.esc(it.place)}</span>` : ''}${U.link(map, '地図を開く', 'mini-link')}</div>` : ''}
-          ${it.memo ? `<div class="tl-memo">${U.escBr(it.memo)}</div>` : ''}
+          ${it.memo ? `<div class="tl-memo">${App.memoHtml(it.memo, it.id)}</div>` : ''}
           ${giftHtml}
         </div>
         <div class="tl-actions">
@@ -117,6 +117,12 @@
     return `期間: ${U.fmtYMD(s)} 〜 ${U.fmtMDLong(U.dayDate(App.data.trip.startDate, U.DAYS - 1))}(2泊3日)`;
   }
 
+  // ToDoページなど、ほかの画面から編集画面を開く
+  M.edit = (id) => {
+    const f = App.findItem(id);
+    if (f) openEdit(f.day, id);
+  };
+
   M.render = (el) => {
     const trip = App.data.trip;
     const gifts = giftsByItem();
@@ -126,6 +132,7 @@
         <h2 class="card-title">旅の基本</h2>
         <div class="form-grid">
           <label class="field full"><span class="field-label">しおりのタイトル</span><input type="text" data-trip="title" value="${U.esc(trip.title)}" placeholder="例: 金沢 二人旅"></label>
+          <label class="field full"><span class="field-label">キャッチコピー(しおりの表紙に表示)</span><input type="text" data-trip="catchphrase" value="${U.esc(trip.catchphrase)}" placeholder="例: 加賀百万石の城下町をめぐる"></label>
           <label class="field"><span class="field-label">旅行開始日(1日目)</span><input type="date" data-trip="startDate" value="${U.esc(trip.startDate)}"></label>
           <label class="field"><span class="field-label">参加者</span><input type="text" data-trip="members" value="${U.esc(trip.members)}" placeholder="例: 夫・妻"></label>
         </div>

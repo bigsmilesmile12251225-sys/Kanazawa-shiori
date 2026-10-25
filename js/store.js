@@ -64,9 +64,9 @@
     },
     hotel: {
       id: '', name: '', address: '', checkIn: '15:00', checkOut: '10:00', nights: 'both',
-      phone: '', mapUrl: '', memo: '',
+      phone: '', mapUrl: '', price: '', memo: '',
     },
-    restaurant: { id: '', name: '', day: 0, time: '', people: 2, phone: '', mapUrl: '', memo: '' },
+    restaurant: { id: '', name: '', day: 0, time: '', people: 2, phone: '', mapUrl: '', price: '', memo: '' },
     pack: { id: '', name: '', checked: false },
     souvenir: {
       id: '', category: 'gift', recipient: '', item: '', shop: '', timingItemId: '', timingText: '',
@@ -91,7 +91,7 @@
 
   App.defaultData = () => ({
     schema: SCHEMA,
-    trip: { title: '金沢 二人旅', startDate: '', members: '' },
+    trip: { title: '金沢 二人旅', catchphrase: '', startDate: '', members: '' },
     itinerary: [[], [], []],
     transport: [],
     hotels: [],
@@ -102,6 +102,7 @@
       wife: App.makePackItems(App.DEFAULT_PACKING.wife),
     },
     souvenirs: [],
+    todoDone: {}, // ⚠️メモから作ったToDoの完了状態 { キー: true }
     updatedAt: '',
   });
 
@@ -112,6 +113,7 @@
     const trip = raw.trip || {};
     d.trip = {
       title: String(trip.title ?? d.trip.title),
+      catchphrase: String(trip.catchphrase ?? ''),
       startDate: /^\d{4}-\d{2}-\d{2}$/.test(trip.startDate || '') ? trip.startDate : '',
       members: String(trip.members ?? ''),
     };
@@ -128,6 +130,9 @@
     d.souvenirs.forEach((s) => {
       if (!/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.photo)) s.photo = '';
     });
+    if (raw.todoDone && typeof raw.todoDone === 'object') {
+      Object.keys(raw.todoDone).forEach((k) => { if (raw.todoDone[k] === true) d.todoDone[k] = true; });
+    }
     d.updatedAt = raw.updatedAt || '';
     return d;
   };
@@ -154,7 +159,8 @@
   App.defaultUi = () => ({
     tab: 'itinerary',
     souvenirFilter: 'all',
-    shioriOpts: { cover: true, days: true, dayExtras: true, transport: true, stay: true, packing: true },
+    todoHideDone: false,
+    shioriOpts: { cover: true, days: true, dayExtras: true, transport: true, stay: true, packing: true, todoInShiori: false },
   });
 
   App.save = () => {

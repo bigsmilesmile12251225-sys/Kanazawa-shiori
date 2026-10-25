@@ -18,7 +18,7 @@
     { key: 'price', label: '金額(円)', type: 'number', placeholder: '例: 28760', hint: '2人分の合計など、実際に払う金額' },
     { key: 'method', label: '乗車方法', type: 'text', placeholder: '例: えきねっと', suggestions: METHOD_SUGGESTIONS },
     { key: 'booked', label: '手配済み', type: 'checkbox' },
-    { key: 'memo', label: 'メモ', type: 'textarea', full: true },
+    { key: 'memo', label: 'メモ', type: 'textarea', full: true, hint: '⚠️ を付けた行は「やること」に集まります(しおりには載りません)' },
   ];
 
   M.total = () => App.data.transport.reduce((sum, t) => sum + U.toNum(t.price), 0);
@@ -44,6 +44,8 @@
     });
   }
 
+  M.edit = (id) => openEdit(id);
+
   function remove(t) {
     App.data.transport = App.data.transport.filter((x) => x !== t);
     App.commit();
@@ -67,7 +69,7 @@
         </div>
         <div class="ic-title">${U.esc(t.from)} → ${U.esc(t.to)}</div>
         ${rows.length ? `<dl class="ic-dl">${rows.map((r) => `<div><dt>${r[0]}</dt><dd>${U.esc(r[1])}</dd></div>`).join('')}</dl>` : ''}
-        ${t.memo ? `<div class="ic-memo">${U.escBr(t.memo)}</div>` : ''}
+        ${t.memo ? `<div class="ic-memo">${App.memoHtml(t.memo, t.id)}</div>` : ''}
         <div class="ic-foot">
           <label class="check-big"><input type="checkbox" data-act="booked" data-id="${t.id}"${t.booked ? ' checked' : ''}>手配済み</label>
           <span class="spacer"></span>

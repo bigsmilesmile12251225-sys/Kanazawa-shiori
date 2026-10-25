@@ -1,7 +1,8 @@
 /* =========================================================
    しおり(A4プレビュー・印刷 / スマホ用画像)
-   読みやすさ優先。飾りは金の細線と小さな金箔の菱形だけ。
-   ※ スマホ画像は html2canvas で描くため、grid は使わず flex/block で組む
+   旅行らしい楽しさ(イラスト・切符・日ごとの色帯・絵文字アイコン)と
+   読みやすさ(本文の大きさ・余白)を両立させる。
+   ※ スマホ画像は html2canvas で描くため、grid・font-variant-numeric・attr() は使わない
    ========================================================= */
 
 /* ---------- 出力パネルの操作部分 ---------- */
@@ -17,7 +18,7 @@
 .sheet {
   width: 210mm;
   min-height: 297mm;
-  padding: 14mm 13mm;
+  padding: 13mm 13mm;
   margin: 0 0 24px;
   background: #fffdf9;
   box-shadow: 0 2px 4px rgba(60, 40, 20, .08), 0 10px 30px rgba(60, 40, 20, .10);
@@ -38,11 +39,13 @@
   --s-ink-2: #5a5048;
   --s-ink-3: #8f8478;
   --s-enji: #9a2e33;
+  --s-shu: #c8442f;      /* 朱(はんこ) */
   --s-ai: #1f3d66;
   --s-kin: #b28b36;
   --s-kin-pale: #f4ead0;
   --s-line: #e3d6b8;
   --s-kinari: #f7f1e3;
+  --s-bg: #fffdf9;       /* 紙の色(切符の切り欠きに使う) */
   color: var(--s-ink);
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -52,7 +55,6 @@
 .shiori a { color: var(--s-ai); text-decoration: none; border-bottom: 1px solid rgba(31, 61, 102, .3); }
 .shiori h1, .shiori h2, .shiori h3 { font-family: var(--font-mincho); margin: 0; }
 .sh-muted { color: var(--s-ink-3); }
-.sh-sep { color: var(--s-kin); margin: 0 .35em; }
 .sh-small { font-size: .85em; color: var(--s-ink-3); }
 .sh-tag {
   display: inline-block;
@@ -61,47 +63,126 @@
   font-weight: 600;
   color: #7a5d1d;
   background: var(--s-kin-pale);
-  border-radius: 3px;
-  padding: 1px 7px;
+  border-radius: 999px;
+  padding: 1px 8px;
   margin-left: 8px;
   vertical-align: 2px;
   line-height: 1.6;
 }
 
-/* 表紙 */
-.sh-cover { text-align: center; padding: 18mm 0 12mm; }
-.sh-kicker { margin: 0; letter-spacing: .6em; font-size: 13px; color: var(--s-kin); font-family: var(--font-mincho); padding-left: .6em; }
-.sh-cover-title { font-size: 40px; letter-spacing: .12em; margin-top: 10px; color: var(--s-ink); line-height: 1.3; }
-.sh-ornament { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 18px auto 16px; }
-.sh-ornament i { display: block; width: 72px; height: 1px; background: var(--s-kin); }
-.sh-ornament b { display: block; width: 9px; height: 9px; background: var(--s-kin); transform: rotate(45deg); }
-.sh-cover-date { margin: 0; font-size: 18px; font-family: var(--font-mincho); color: var(--s-ai); }
-.sh-cover-sub { margin: 6px 0 0; font-size: 14px; color: var(--s-ink-2); letter-spacing: .1em; }
+/* 日ごとのテーマ色(臙脂・藍・松葉) */
+.d1 { --day: #9a2e33; --day-pale: #f8e9e7; }
+.d2 { --day: #1f3d66; --day-pale: #e6edf6; }
+.d3 { --day: #3f6b4a; --day-pale: #e7f0e8; }
 
-/* 見出し */
-.sh-block { margin-top: 9mm; }
-.sh-h2 {
+/* 青海波(色帯の上に薄く重ねる) */
+.sh-day-head, .ph-head {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.2' stroke-width='1.2'%3E%3Cpath d='M2 20a18 18 0 0 1 36 0M8 20a12 12 0 0 1 24 0M14 20a6 6 0 0 1 12 0M-18 10a18 18 0 0 1 36 0M-12 10a12 12 0 0 1 24 0M-6 10a6 6 0 0 1 12 0M22 10a18 18 0 0 1 36 0M28 10a12 12 0 0 1 24 0M34 10a6 6 0 0 1 12 0'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ---------- 表紙 ---------- */
+.sh-cover { position: relative; text-align: center; padding: 6mm 0 2mm; }
+.sh-stamp {
+  position: absolute;
+  top: 0;
+  right: 4mm;
+  width: 64px;
+  height: 64px;
+  border: 3px solid var(--s-shu);
+  border-radius: 50%;
+  color: var(--s-shu);
+  font-family: var(--font-mincho);
+  font-weight: 700;
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-14deg);
+  opacity: .85;
+}
+.sh-stamp span { border-top: 1px solid var(--s-shu); border-bottom: 1px solid var(--s-shu); padding: 0 2px; line-height: 1.4; letter-spacing: .1em; }
+.sh-kicker { margin: 0; letter-spacing: .6em; font-size: 13px; color: var(--s-kin); font-family: var(--font-mincho); padding-left: .6em; }
+.sh-cover-title { font-size: 38px; letter-spacing: .1em; margin-top: 6px; color: var(--s-ink); line-height: 1.3; }
+.sh-catch { margin: 6px 0 0; font-family: var(--font-mincho); font-size: 16px; color: var(--s-enji); letter-spacing: .08em; }
+.sh-illust { margin: 6mm auto 4mm; max-width: 170mm; }
+.sh-illust-svg { display: block; width: 100%; height: auto; }
+
+/* 切符 */
+.sh-ticket {
+  display: flex;
+  max-width: 150mm;
+  margin: 0 auto;
+  text-align: left;
+  background: #fff;
+  border: 1.5px solid var(--s-ai);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sh-ticket-main { flex: 1; padding: 10px 18px 12px; background: linear-gradient(90deg, #f1f5fa, #fff 70%); }
+.sh-ticket-label { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--s-ai); }
+.sh-ticket-label b { font-family: var(--font-mincho); font-size: 18px; letter-spacing: .1em; }
+.sh-ticket-badge { background: var(--s-ai); color: #fff; border-radius: 4px; padding: 0 8px; font-size: 12px; font-weight: 700; }
+.sh-ticket-date { font-family: var(--font-mincho); font-size: 18px; font-weight: 700; margin-top: 4px; color: var(--s-ink); }
+.sh-ticket-sub { font-size: 13px; color: var(--s-ink-2); }
+.sh-ticket-stub {
+  width: 78px;
+  flex: none;
+  border-left: 2px dashed var(--s-ai);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--s-ai);
+  font-size: 12px;
+  background: var(--s-kin-pale);
+}
+.sh-ticket-stub b { font-family: var(--font-mincho); font-size: 30px; line-height: 1.1; color: var(--s-enji); }
+
+/* ---------- 見出し ---------- */
+.sh-block { margin-top: 7mm; }
+.sh-h2 {
+  font-size: 19px;
   color: var(--s-enji);
-  padding-bottom: 4px;
+  padding-bottom: 5px;
   margin-bottom: 10px;
-  border-bottom: 1px solid var(--s-kin);
+  border-bottom: 2px solid var(--s-kin);
   display: flex;
   align-items: center;
   gap: 8px;
   break-after: avoid;
 }
-.sh-h2::before { content: ""; width: 7px; height: 7px; background: var(--s-kin); transform: rotate(45deg); flex: none; }
-.sh-h3 { font-size: 15px; color: var(--s-ai); margin-bottom: 6px; break-after: avoid; }
+.sh-h2-icon {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--s-kin-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+}
 
-/* 概要 */
-.sh-overview { border-top: 1px solid var(--s-line); }
-.sh-ov-row { display: flex; gap: 14px; padding: 9px 2px; border-bottom: 1px solid var(--s-line); break-inside: avoid; }
-.sh-ov-day { width: 76px; flex: none; display: flex; flex-direction: column; }
-.sh-ov-day b { font-family: var(--font-mincho); color: var(--s-enji); font-size: 16px; }
-.sh-ov-day span { font-size: 13px; color: var(--s-ink-2); }
-.sh-ov-body { flex: 1; font-size: 14px; padding-top: 2px; }
-.sh-ov-hotel { padding: 4px 2px 8px; break-inside: avoid; }
+/* 旅のみどころ */
+.sh-overview { display: flex; flex-direction: column; gap: 8px; }
+.sh-ov-row { display: flex; gap: 12px; align-items: stretch; background: var(--day-pale); border-radius: 10px; overflow: hidden; break-inside: avoid; }
+.sh-ov-day {
+  width: 82px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--day);
+  color: #fff;
+  padding: 8px 4px;
+}
+.sh-ov-day b { font-family: var(--font-mincho); font-size: 16px; letter-spacing: .05em; }
+.sh-ov-day span { font-size: 12px; opacity: .9; }
+.sh-ov-body { flex: 1; font-size: 14px; padding: 8px 10px 8px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.sh-spot { white-space: nowrap; }
+.sh-ov-hotel { padding: 2px 2px 6px; break-inside: avoid; }
 .sh-ov-hotel-name { font-family: var(--font-mincho); font-size: 17px; font-weight: 700; margin-bottom: 4px; }
 
 /* 項目:値 */
@@ -110,18 +191,39 @@
 .sh-k { width: 7.5em; flex: none; color: var(--s-ink-3); }
 .sh-v { flex: 1; min-width: 0; word-break: break-word; }
 
-/* 1日分 */
-.sh-day-title {
+/* ---------- 1日分 ---------- */
+.sh-day-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 14px;
-  padding-bottom: 8px;
-  margin-bottom: 14px;
-  border-bottom: 2px solid var(--s-enji);
+  background-color: var(--day);
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
   break-after: avoid;
 }
-.sh-day-num { font-size: 28px; color: var(--s-enji); letter-spacing: .08em; }
-.sh-day-date { font-size: 18px; color: var(--s-ai); }
+.sh-day-badge {
+  width: 58px;
+  height: 58px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .85);
+  background: rgba(255, 255, 255, .12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.sh-day-badge span { font-size: 10px; letter-spacing: .15em; font-weight: 700; }
+.sh-day-badge b { font-family: var(--font-mincho); font-size: 26px; margin-top: 2px; }
+.sh-day-headtext { flex: 1; min-width: 0; }
+.sh-day-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 14px; }
+.sh-day-num { font-size: 28px; letter-spacing: .08em; }
+.sh-day-date { font-size: 18px; opacity: .95; }
+.sh-day-hl { font-size: 13px; margin-top: 2px; opacity: .92; }
+
 .sh-tl { display: block; }
 .sh-row { display: flex; break-inside: avoid; }
 .sh-time {
@@ -129,86 +231,116 @@
   flex: none;
   font-weight: 700;
   font-size: 15px;
-  color: var(--s-ai);
+  color: var(--day, var(--s-ai));
   text-align: right;
-  padding-top: 1px;
+  padding-top: 5px;
   font-variant-numeric: tabular-nums;
 }
-.sh-line { width: 26px; flex: none; position: relative; }
-.sh-line::before { content: ""; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: var(--s-line); }
-.sh-row:first-child .sh-line::before { top: 9px; }
-.sh-row:last-child .sh-line::before { bottom: auto; height: 9px; }
-.sh-dot {
+.sh-line { width: 46px; flex: none; position: relative; }
+.sh-line::before { content: ""; position: absolute; left: 22px; top: 0; bottom: 0; width: 2px; background: var(--s-line); }
+.sh-row:first-child .sh-line::before { top: 16px; }
+.sh-row:last-child .sh-line::before { bottom: auto; height: 16px; }
+.sh-icon {
   position: absolute;
   left: 8px;
-  top: 6px;
-  width: 10px;
-  height: 10px;
+  top: 2px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: #fff;
   border: 2px solid var(--type-color, var(--s-kin));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
 }
-.sh-content { flex: 1; min-width: 0; padding-bottom: 14px; }
+.sh-content { flex: 1; min-width: 0; padding: 4px 0 12px; }
 .sh-title-line { display: flex; align-items: baseline; gap: 8px; }
 .sh-type {
   flex: none;
   font-size: 11px;
   font-weight: 700;
-  color: var(--type-color);
-  border: 1px solid var(--type-color);
-  border-radius: 3px;
-  padding: 0 5px;
-  line-height: 1.6;
+  color: #fff;
+  background: var(--type-color);
+  border-radius: 999px;
+  padding: 0 8px;
+  line-height: 1.7;
   position: relative;
   top: -1px;
 }
 .sh-title { font-size: 16px; font-weight: 700; word-break: break-word; }
 .sh-place { font-size: 13.5px; color: var(--s-ink-2); margin-top: 2px; }
-.sh-maplabel { font-size: 11px; color: var(--s-ai); margin-left: 4px; }
-.sh-memo { font-size: 13.5px; color: var(--s-ink-2); margin-top: 3px; padding-left: 10px; border-left: 2px solid var(--s-kin-pale); }
+.sh-memo { font-size: 13.5px; color: var(--s-ink-2); margin-top: 4px; background: var(--s-kinari); border-radius: 6px; padding: 3px 10px; display: inline-block; }
 
+/* この日の交通・予約(切符の半券ふう) */
 .sh-extras {
-  margin-top: 8px;
-  background: var(--s-kinari);
-  border-radius: 6px;
-  padding: 10px 14px;
+  margin-top: 6px;
+  background: #fff;
+  border: 1.5px dashed var(--day, var(--s-kin));
+  border-radius: 10px;
+  padding: 10px 16px;
   break-inside: avoid;
 }
+.sh-extras-title { font-weight: 700; color: var(--day, var(--s-ai)); font-size: 14px; margin-bottom: 4px; }
 .sh-x-row { display: flex; gap: 12px; font-size: 14px; padding: 3px 0; }
 .sh-x-time { width: 96px; flex: none; color: var(--s-ai); font-weight: 600; font-variant-numeric: tabular-nums; }
 .sh-x-body { flex: 1; min-width: 0; }
 .sh-x-body b { color: var(--s-enji); font-weight: 700; margin-right: 4px; }
 .sh-x-sub { display: block; font-size: 12.5px; color: var(--s-ink-2); }
+/* 交通・予約の枠と一言は、同じページにまとめる(一言だけが次のページに行かないように) */
+.sh-day-foot { break-inside: avoid; }
+.sh-day-msg {
+  margin: 12px 0 0;
+  text-align: center;
+  font-family: var(--font-mincho);
+  font-size: 15px;
+  color: var(--s-kin);
+  letter-spacing: .15em;
+}
+.sh-day-msg::before, .sh-day-msg::after { content: "◆"; font-size: 8px; vertical-align: 3px; margin: 0 10px; }
 
-/* 表(A4) */
-.sh-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+/* ---------- 表(A4) ---------- */
+.sh-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; border-radius: 8px; overflow: hidden; border: 1px solid var(--s-line); }
 .sh-table th {
   text-align: left;
-  font-weight: 600;
-  color: var(--s-ink-2);
-  background: var(--s-kinari);
-  border-bottom: 1px solid var(--s-kin);
+  font-weight: 700;
+  color: #fff;
+  background: var(--s-ai);
   padding: 6px 8px;
   white-space: nowrap;
 }
-.sh-table td { border-bottom: 1px solid var(--s-line); padding: 7px 8px; vertical-align: top; }
+.sh-table td { border-top: 1px solid var(--s-line); padding: 7px 8px; vertical-align: top; background: #fff; }
+.sh-table tbody tr:nth-child(even) td { background: #fbf8f1; }
 .sh-table tr { break-inside: avoid; }
-.sh-table tfoot td { font-weight: 700; border-bottom: 0; border-top: 1px solid var(--s-kin); }
+.sh-table tfoot td { font-weight: 700; border-top: 2px solid var(--s-kin); background: var(--s-kin-pale); }
 .sh-table .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .sh-table .nowrap { white-space: nowrap; }
 
 /* カード(宿・スマホ) */
-.sh-card { padding: 8px 2px 10px; border-bottom: 1px solid var(--s-line); break-inside: avoid; }
-.sh-card:last-child { border-bottom: 0; }
+.sh-card { padding: 10px 14px; margin-bottom: 8px; border: 1px solid var(--s-line); border-radius: 10px; background: #fff; break-inside: avoid; }
 .sh-card-when { font-size: 13px; color: var(--s-ai); font-weight: 600; }
 .sh-card-title { font-family: var(--font-mincho); font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-.sh-total { display: flex; justify-content: space-between; border-top: 1px solid var(--s-kin); padding-top: 8px; margin-top: 4px; font-size: 15px; }
+.sh-total { display: flex; justify-content: space-between; border-top: 2px solid var(--s-kin); padding: 8px 4px 0; margin-top: 4px; font-size: 15px; }
 
-/* 持ち物 */
-.sh-pack { display: flex; gap: 8mm; }
-.sh-pack-col { flex: 1; min-width: 0; }
-.sh-checks { list-style: none; margin: 0; padding: 0; }
+/* 旅費のまとめ */
+.sh-cost { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; background: var(--s-kinari); border-radius: 10px; padding: 10px 14px; break-inside: avoid; }
+.sh-cost-item { display: flex; flex-direction: column; background: #fff; border-radius: 8px; padding: 4px 12px; font-size: 12px; color: var(--s-ink-2); }
+.sh-cost-item b { font-size: 15px; color: var(--s-ink); }
+.sh-cost-item.total { background: var(--s-enji); color: #fff; }
+.sh-cost-item.total b { color: #fff; font-size: 17px; }
+.sh-cost-op { color: var(--s-kin); font-weight: 700; font-size: 16px; }
+
+/* ---------- 持ち物 ---------- */
+.sh-pack { display: flex; gap: 6mm; }
+.sh-pack-col { flex: 1; min-width: 0; background: #fff; border: 1px solid var(--s-line); border-radius: 10px; overflow: hidden; }
+.sh-pack-head { font-size: 15px; color: #fff; padding: 5px 12px; letter-spacing: .1em; }
+.p-common .sh-pack-head { background: #9a2e33; }
+.p-me .sh-pack-head { background: #1f3d66; }
+.p-wife .sh-pack-head { background: #3f6b4a; }
+.sh-checks { list-style: none; margin: 0; padding: 4px 12px 8px; }
 .sh-checks li { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; padding: 4px 0; border-bottom: 1px dotted var(--s-line); break-inside: avoid; }
+.sh-checks li:last-child { border-bottom: 0; }
 .sh-box {
   flex: none;
   width: 15px;
@@ -230,15 +362,14 @@
 .t-stay { --type-color: #6a4b7d; }
 .t-shop { --type-color: #4f7a3a; }
 
-/* A4: 1枚目の表紙は少しゆったり */
-.a4 .sheet-cover .sh-cover { border-bottom: 1px solid var(--s-line); margin-bottom: 4mm; }
 .a4 .sheet > .sh-block:first-child { margin-top: 0; }
 
 /* ---------- スマホ用画像(幅390px・縦長) ---------- */
 .shiori.phone {
+  --s-bg: #fbf7ee;
   width: 390px;
   background: #fbf7ee;
-  padding: 0 18px 18px;
+  padding: 0 16px 18px;
   font-size: 15px;
 }
 .ph-head {
@@ -246,44 +377,51 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 10px;
-  margin: 0 -18px 18px;
-  padding: 14px 18px 10px;
-  background: #1f3d66;
+  margin: 0 -16px 16px;
+  padding: 14px 16px 10px;
+  background-color: #1f3d66;
   color: #fff;
   border-bottom: 3px solid #b28b36;
 }
 .ph-title { font-family: var(--font-mincho); font-size: 16px; font-weight: 700; }
 .ph-page { font-size: 13px; color: #e4d3a6; white-space: nowrap; }
-.ph-foot { text-align: center; color: var(--s-kin); font-size: 11px; letter-spacing: .4em; margin-top: 18px; font-family: var(--font-mincho); }
-.ph-page-block + .ph-page-block { margin-top: 26px; padding-top: 8px; border-top: 1px dashed var(--s-kin); }
-.phone .sh-cover { padding: 14px 0 6px; }
-.phone .sh-cover-title { font-size: 28px; }
-.phone .sh-cover-date { font-size: 15px; }
-.phone .sh-ornament i { width: 48px; }
+.ph-foot { text-align: center; color: var(--s-kin); font-size: 12px; letter-spacing: .3em; margin-top: 18px; font-family: var(--font-mincho); }
+.ph-page-block + .ph-page-block { margin-top: 26px; padding-top: 10px; border-top: 1px dashed var(--s-kin); }
+.phone .sh-cover { padding: 30px 0 0; }
+.phone .sh-stamp { width: 46px; height: 46px; font-size: 13px; top: -6px; right: 0; border-width: 2px; }
+.phone .sh-cover-title { font-size: 25px; }
+.phone .sh-catch { font-size: 14px; }
+.phone .sh-illust { margin: 12px -4px 12px; }
+.phone .sh-ticket-main { padding: 8px 12px 10px; }
+.phone .sh-ticket-date { font-size: 15px; }
+.phone .sh-ticket-stub { width: 62px; }
+.phone .sh-ticket-stub b { font-size: 24px; }
 .phone .sh-block { margin-top: 22px; }
 .phone .sh-block:first-child { margin-top: 0; }
-.phone .sh-day-num { font-size: 24px; }
-.phone .sh-day-date { font-size: 16px; }
-.phone .sh-time { width: 46px; font-size: 14px; }
-.phone .sh-line { width: 22px; }
-.phone .sh-line::before { left: 10px; }
-.phone .sh-dot { left: 6px; }
+.phone .sh-ov-day { width: 66px; }
+.phone .sh-day-head { padding: 10px 12px; gap: 10px; }
+.phone .sh-day-badge { width: 48px; height: 48px; }
+.phone .sh-day-badge b { font-size: 21px; }
+.phone .sh-day-num { font-size: 22px; }
+.phone .sh-day-date { font-size: 15px; }
+.phone .sh-time { width: 44px; font-size: 14px; text-align: left; }
+.phone .sh-line { width: 40px; }
+.phone .sh-line::before { left: 18px; }
+.phone .sh-icon { left: 4px; }
 .phone .sh-title { font-size: 15.5px; }
 .phone .sh-title-line { display: block; }
 .phone .sh-type { display: inline-block; margin-right: 6px; top: -2px; }
 .phone .sh-x-time { width: 84px; font-size: 13px; }
 .phone .sh-pack { display: block; }
-.phone .sh-pack-col + .sh-pack-col { margin-top: 16px; }
+.phone .sh-pack-col + .sh-pack-col { margin-top: 12px; }
 .phone .sh-k { width: 6.5em; }
-.phone .sh-ov-day { width: 64px; }
 /* html2canvas は tabular-nums を正しく描けず数字の間が空くため、画像では無効にする */
 .shiori.phone * { font-variant-numeric: normal; }
-.phone .sh-time { text-align: left; }
 
 /* ---------- 印刷(PDF) ---------- */
 @page {
   size: A4 portrait;
-  margin: 13mm 12mm 15mm;
+  margin: 12mm 12mm 14mm;
   @bottom-center {
     content: counter(page) " / " counter(pages);
     font-size: 9pt;
@@ -309,5 +447,6 @@
     background: none;
   }
   .sheet + .sheet { break-before: page; }
+  .shiori { --s-bg: #fff; }
   .shiori a { border-bottom: 0; }
 }
