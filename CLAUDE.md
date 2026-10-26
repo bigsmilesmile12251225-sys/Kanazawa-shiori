@@ -60,7 +60,8 @@
 ```js
 {
   schema: 1,
-  trip: { title, catchphrase /* 表紙のキャッチコピー */, startDate: 'YYYY-MM-DD', members },
+  trip: { title, catchphrase /* 表紙のキャッチコピー */, startDate: 'YYYY-MM-DD', members,
+          meName, wifeName /* 呼び名。お土産の「だれのお土産」に使う。空なら 自分 / 妻 */ },
   itinerary: [[item...], [item...], [item...]],   // 3日分
   //   item: { id, time:'HH:MM', title, place, memo, mapUrl, type: move|sight|meal|stay|shop }
   transport: [{ id, kind: shinkansen|express|local|bus|other, day: 0..2 | -1(未定),
@@ -68,7 +69,7 @@
   hotels: [{ id, name, address, checkIn, checkOut, nights: both|n1|n2, phone, mapUrl, price, memo }],
   restaurants: [{ id, name, day, time, people, phone, mapUrl, price, memo }],
   packing: { common: [{ id, name, checked }], me: [...], wife: [...] },
-  souvenirs: [{ id, category: gift|ours, recipient, item, shop,
+  souvenirs: [{ id, category: gift|ours, giver: both|me|wife /* だれのお土産(共通/自分/妻) */, recipient, item, shop,
                 timingItemId,   // 行程itemのid(行程から選んだとき)
                 timingText,     // 自由入力のとき
                 budget, actual, bought, photo /* 縮小JPEGのdataURL */, url, memo }],
@@ -79,7 +80,8 @@
 
 - 日付は「何日目か(day: 0〜2)」で持ち、表示するときに `trip.startDate` から計算する。開始日を変えても全体がずれずに追従する。
 - 行程の予定を削除したとき、その予定に紐づいていたお土産は `timingText` に「1日目 11/20(金) 12:30 …」という文字で残す。
-- 形式を変えるときは `schema` を上げ、`App.normalize` で古い形式を変換する。ただし、既定値付きの項目を足すだけなら `schema` は上げなくてよい(`normalize` が既定値で補うため)。`price`・`catchphrase`・`todoDone` はこの方法で追加した。
+- 形式を変えるときは `schema` を上げ、`App.normalize` で古い形式を変換する。ただし、既定値付きの項目を足すだけなら `schema` は上げなくてよい(`normalize` が既定値で補うため)。`price`・`catchphrase`・`todoDone`・`meName`/`wifeName`・`giver` はこの方法で追加した。
+- 呼び名(実名など)は個人情報なので、コードやサンプルには書かない。利用者が「旅の基本」で入力し、localStorage にだけ保存する。
 
 ## やること(ToDo)の仕様
 
@@ -108,7 +110,7 @@
    - 宿・食事: 金額の入力と、宿・食事・旅費の合計
    - やること: ⚠️の行が集まる / チェック / 完了を隠す / 「編集」で元の項目を直すと一覧が変わる / タブのバッジの件数
    - 持ち物: Enter で連続して追加できる / ✕ で削除して「元に戻す」
-   - お土産: 「自分たち用」を選ぶと相手欄が隠れる / 写真 / 合計・残額 / 絞り込み
+   - お土産: 「自分たち用」を選ぶと相手欄が隠れる / 写真 / 合計・残額 / 絞り込み / 「だれのお土産」(共通・呼び名2人)で絞り込むと合計もその人の分になる
    - データ: 書き出し → すべて消す → 読み込み → 再読み込みしても残っている / 壊れたJSONは拒否される
    - しおり: 印刷プレビューが A4縦で6ページ(サンプルの場合) / ⚠️が載らない / PNG作成
 4. 自動テスト(任意): Playwright で確認した。リポジトリにはテストを入れていない(ビルド・依存なしの方針のため)。
@@ -131,6 +133,7 @@
 - [x] しおりのデザインを、旅行の楽しさが出るものに変更(イラスト・はんこ・切符・日ごとの色帯・絵文字アイコン)。サンプルで A4 6ページ
 - [x] 「やること」タブ(⚠️メモの収集、完了チェック、出発までの日数、未完了件数のバッジ)
 - [x] 上記を Playwright で確認(新機能21項目、iPadの回帰テスト44項目すべて合格)
+- [x] お土産に「だれのお土産」(共通 / 自分 / 妻。表示名は「旅の基本」の呼び名)を追加。人ごとの絞り込み・合計・内訳。タブレット縦で「やること」のタブ名が2行になる問題も修正(13項目+回帰テスト合格)
 
 ## 次にやること(アイデア・未着手)
 

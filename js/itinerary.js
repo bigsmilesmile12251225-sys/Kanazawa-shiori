@@ -135,6 +135,8 @@
           <label class="field full"><span class="field-label">キャッチコピー(しおりの表紙に表示)</span><input type="text" data-trip="catchphrase" value="${U.esc(trip.catchphrase)}" placeholder="例: 加賀百万石の城下町をめぐる"></label>
           <label class="field"><span class="field-label">旅行開始日(1日目)</span><input type="date" data-trip="startDate" value="${U.esc(trip.startDate)}"></label>
           <label class="field"><span class="field-label">参加者</span><input type="text" data-trip="members" value="${U.esc(trip.members)}" placeholder="例: 夫・妻"></label>
+          <label class="field"><span class="field-label">自分の呼び名</span><input type="text" data-trip="meName" value="${U.esc(trip.meName)}" placeholder="例: たろう"><span class="field-hint">お土産の「だれのお土産」に使います</span></label>
+          <label class="field"><span class="field-label">妻の呼び名</span><input type="text" data-trip="wifeName" value="${U.esc(trip.wifeName)}" placeholder="例: はなこ"><span class="field-hint">お土産の「だれのお土産」に使います</span></label>
         </div>
         <p class="trip-period" id="trip-period">${U.esc(periodText())}</p>
       </section>

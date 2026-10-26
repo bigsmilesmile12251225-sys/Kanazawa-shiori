@@ -113,6 +113,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .tab-icon { font-size: 20px; }
 .tab { position: relative; }
+.tab-label { white-space: nowrap; }
 .tab-badge {
   min-width: 20px;
   height: 20px;
@@ -536,6 +537,7 @@ input[type="checkbox"] { width: 26px; height: 26px; accent-color: var(--enji); f
 .banner code { background: #fff; border-radius: 4px; padding: 1px 6px; font-family: inherit; }
 
 /* ---------- お土産 ---------- */
+.seg-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; background: #fff; }
 .seg button {
   min-height: 44px;
@@ -648,6 +650,9 @@ input[type="checkbox"] { width: 26px; height: 26px; accent-color: var(--enji); f
    レスポンシブ
    ========================================================= */
 @media (max-width: 900px) {
+  .tab { gap: 3px; font-size: 15px; }
+  .tab-icon { font-size: 17px; }
+  .tab-badge { min-width: 18px; height: 18px; line-height: 18px; font-size: 11px; padding: 0 5px; }
   .pack-grid { grid-template-columns: 1fr 1fr; }
   .pack-grid > :first-child { grid-column: 1 / -1; }
 }

@@ -32,6 +32,16 @@
     { key: 'n2', label: '2泊目(2日目の夜)' },
   ];
 
+  // お土産の「だれのお土産」。呼び名は「旅の基本」で入力(未入力なら 自分 / 妻)
+  App.GIVER_KEYS = ['both', 'me', 'wife'];
+  App.giverLabel = (key) => {
+    const t = (App.data && App.data.trip) || {};
+    if (key === 'me') return t.meName || '自分';
+    if (key === 'wife') return t.wifeName || '妻';
+    return '共通';
+  };
+  App.givers = () => App.GIVER_KEYS.map((key) => ({ key, label: App.giverLabel(key) }));
+
   App.PACK_GROUPS = [
     { key: 'common', label: '共通' },
     { key: 'me', label: '自分' },
@@ -69,7 +79,7 @@
     restaurant: { id: '', name: '', day: 0, time: '', people: 2, phone: '', mapUrl: '', price: '', memo: '' },
     pack: { id: '', name: '', checked: false },
     souvenir: {
-      id: '', category: 'gift', recipient: '', item: '', shop: '', timingItemId: '', timingText: '',
+      id: '', category: 'gift', giver: 'both', recipient: '', item: '', shop: '', timingItemId: '', timingText: '',
       budget: '', actual: '', bought: false, photo: '', url: '', memo: '',
     },
   };
@@ -91,7 +101,7 @@
 
   App.defaultData = () => ({
     schema: SCHEMA,
-    trip: { title: '金沢 二人旅', catchphrase: '', startDate: '', members: '' },
+    trip: { title: '金沢 二人旅', catchphrase: '', startDate: '', members: '', meName: '', wifeName: '' },
     itinerary: [[], [], []],
     transport: [],
     hotels: [],
@@ -116,6 +126,8 @@
       catchphrase: String(trip.catchphrase ?? ''),
       startDate: /^\d{4}-\d{2}-\d{2}$/.test(trip.startDate || '') ? trip.startDate : '',
       members: String(trip.members ?? ''),
+      meName: String(trip.meName ?? ''),
+      wifeName: String(trip.wifeName ?? ''),
     };
     const it = Array.isArray(raw.itinerary) ? raw.itinerary : [];
     d.itinerary = [0, 1, 2].map((i) => list(DEF.item, it[i]));
@@ -128,6 +140,7 @@
     d.souvenirs = list(DEF.souvenir, raw.souvenirs);
     // 写真は縮小済みの画像dataURLだけを受け付ける
     d.souvenirs.forEach((s) => {
+      if (!App.GIVER_KEYS.includes(s.giver)) s.giver = 'both';
       if (!/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.photo)) s.photo = '';
     });
     if (raw.todoDone && typeof raw.todoDone === 'object') {
@@ -159,6 +172,7 @@
   App.defaultUi = () => ({
     tab: 'itinerary',
     souvenirFilter: 'all',
+    souvenirGiver: 'all',
     todoHideDone: false,
     shioriOpts: { cover: true, days: true, dayExtras: true, transport: true, stay: true, packing: true, todoInShiori: false },
   });

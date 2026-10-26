@@ -53,7 +53,8 @@
       add('予約した店', r.id, r.memo, `${App.modules.stay.restaurantWhen(r)} ${r.name}`, { mod: 'stay', id: r.id });
     });
     d.souvenirs.forEach((s) => {
-      add('お土産', s.id, s.memo, [s.category === 'ours' ? '自分たち用' : s.recipient, s.item].filter(Boolean).join(' / '), { mod: 'souvenir', id: s.id });
+      const who = s.giver === 'both' ? '' : `(${App.giverLabel(s.giver)})`;
+      add('お土産', s.id, s.memo, [s.category === 'ours' ? '自分たち用' : s.recipient, s.item + who].filter(Boolean).join(' / '), { mod: 'souvenir', id: s.id });
     });
     App.PACK_GROUPS.forEach((g) => d.packing[g.key].forEach((p) => {
       add('持ち物', 'pack:' + p.id, p.name, `持ち物(${g.label})`, { tab: 'packing' });

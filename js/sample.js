@@ -7,7 +7,7 @@
 
   App.sampleData = () => ({
     schema: 1,
-    trip: { title: '金沢 二人旅(サンプル)', catchphrase: '加賀百万石の城下町をめぐる', startDate: '2026-11-20', members: '夫・妻' },
+    trip: { title: '金沢 二人旅(サンプル)', catchphrase: '加賀百万石の城下町をめぐる', startDate: '2026-11-20', members: '夫・妻', meName: '', wifeName: '' },
     itinerary: [
       [
         { id: 's-d0-1', time: '07:36', type: 'move', title: '東京駅から北陸新幹線で金沢へ', place: '東京駅', memo: '改札内で駅弁と飲み物を買う', mapUrl: '' },
@@ -53,11 +53,11 @@
       wife: App.DEFAULT_PACKING.wife.map((name, i) => ({ name, checked: i < 2 })),
     },
     souvenirs: [
-      { category: 'gift', recipient: '職場', item: '金箔入りのお菓子(個包装)', shop: '金沢駅のお土産売り場', timingItemId: 's-d2-3', timingText: '', budget: 3000, actual: '', bought: false, photo: '', url: '', memo: '20個以上入りのもの\n⚠️ 出発前に職場の人数を確認' },
-      { category: 'gift', recipient: '実家', item: '加賀棒茶', shop: 'ひがし茶屋街のお茶屋さん', timingItemId: 's-d1-1', timingText: '', budget: 2500, actual: 2376, bought: true, photo: '', url: '', memo: '' },
-      { category: 'gift', recipient: '友人', item: 'あぶらとり紙', shop: '', timingItemId: '', timingText: '金沢駅で帰る前に', budget: 1000, actual: '', bought: false, photo: '', url: '', memo: '' },
-      { category: 'ours', recipient: '', item: '九谷焼の豆皿', shop: '主計町のギャラリー', timingItemId: 's-d1-4', timingText: '', budget: 5000, actual: 5500, bought: true, photo: '', url: '', memo: '2枚組' },
-      { category: 'ours', recipient: '', item: '地酒(四合瓶)', shop: '金沢駅のお土産売り場', timingItemId: 's-d2-3', timingText: '', budget: 2500, actual: '', bought: false, photo: '', url: '', memo: '' },
+      { category: 'gift', giver: 'both', recipient: '職場', item: '金箔入りのお菓子(個包装)', shop: '金沢駅のお土産売り場', timingItemId: 's-d2-3', timingText: '', budget: 3000, actual: '', bought: false, photo: '', url: '', memo: '20個以上入りのもの\n⚠️ 出発前に職場の人数を確認' },
+      { category: 'gift', giver: 'me', recipient: '実家', item: '加賀棒茶', shop: 'ひがし茶屋街のお茶屋さん', timingItemId: 's-d1-1', timingText: '', budget: 2500, actual: 2376, bought: true, photo: '', url: '', memo: '' },
+      { category: 'gift', giver: 'wife', recipient: '友人', item: 'あぶらとり紙', shop: '', timingItemId: '', timingText: '金沢駅で帰る前に', budget: 1000, actual: '', bought: false, photo: '', url: '', memo: '' },
+      { category: 'ours', giver: 'both', recipient: '', item: '九谷焼の豆皿', shop: '主計町のギャラリー', timingItemId: 's-d1-4', timingText: '', budget: 5000, actual: 5500, bought: true, photo: '', url: '', memo: '2枚組' },
+      { category: 'ours', giver: 'me', recipient: '', item: '地酒(四合瓶)', shop: '金沢駅のお土産売り場', timingItemId: 's-d2-3', timingText: '', budget: 2500, actual: '', bought: false, photo: '', url: '', memo: '' },
     ],
   });
 })(window.App);

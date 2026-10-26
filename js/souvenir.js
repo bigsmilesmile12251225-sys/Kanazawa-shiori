@@ -12,8 +12,11 @@
   const recipients = () =>
     [...new Set(App.data.souvenirs.map((s) => s.recipient.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ja'));
 
+  const GIVER_CHIP = { both: 'chip-kin', me: 'chip-ai', wife: 'chip-enji' };
+
   const fields = () => [
     { key: 'category', label: '区分', type: 'select', options: CATEGORIES },
+    { key: 'giver', label: 'だれのお土産', type: 'select', options: App.givers().map((g) => ({ value: g.key, label: g.label })), hint: '呼び名は「行程」→「旅の基本」で変えられます' },
     { key: 'recipient', label: '渡す相手', type: 'text', placeholder: '例: 職場、実家', suggestions: recipients(), showIf: (v) => v.category !== 'ours' },
     { key: 'item', label: '品物', type: 'text', required: true, full: true, placeholder: '例: 加賀棒茶' },
     { key: 'shop', label: '購入場所', type: 'text', full: true, placeholder: '例: 金沢駅のお土産売り場' },
@@ -37,7 +40,8 @@
     App.openForm({
       title: found ? 'お土産を編集' : 'お土産を追加',
       fields: fields(),
-      values: found || Object.assign({}, App.DEF.souvenir),
+      // 「だれ」で絞り込み中なら、その人を初期値にする
+      values: found || Object.assign({}, App.DEF.souvenir, App.GIVER_KEYS.includes(App.ui.souvenirGiver) ? { giver: App.ui.souvenirGiver } : {}),
       onSubmit: (v) => {
         if (v.category === 'ours') v.recipient = '';
         if (found) Object.assign(found, v);
@@ -67,6 +71,7 @@
             ? `<button type="button" class="sv-photo" data-act="photo" data-id="${s.id}" aria-label="写真を大きく表示"><img src="${s.photo}" alt=""></button>`
             : '<div class="sv-photo empty" aria-hidden="true">🎁</div>'}
           <div class="sv-main">
+            <div class="ic-head"><span class="chip ${GIVER_CHIP[s.giver] || 'chip-kin'}">👤 ${U.esc(App.giverLabel(s.giver))}</span></div>
             <div class="ic-title">${U.esc(s.item)}</div>
             ${s.shop ? `<div class="sv-meta">🏬 ${U.esc(s.shop)}</div>` : ''}
             ${timing ? `<div class="sv-meta">🕒 ${U.esc(timing)}</div>` : ''}
@@ -96,10 +101,16 @@
   }
 
   M.render = (el) => {
-    const all = App.data.souvenirs;
+    const giver = App.GIVER_KEYS.includes(App.ui.souvenirGiver) ? App.ui.souvenirGiver : 'all';
+    // 合計・一覧は「だれ」の絞り込みに合わせる
+    const all = App.data.souvenirs.filter((s) => giver === 'all' || s.giver === giver);
     const t = M.totals(all);
     const filter = App.ui.souvenirFilter || 'all';
     const shown = all.filter((s) => filter === 'all' || (filter === 'bought' ? s.bought : !s.bought));
+    const perGiver = App.givers().map((g) => {
+      const gt = M.totals(App.data.souvenirs.filter((s) => s.giver === g.key));
+      return `${U.esc(g.label)} 予算${U.yen(gt.budget)}・実額${U.yen(gt.actual)}`;
+    }).join(' / ');
     const gifts = shown.filter((s) => s.category !== 'ours');
     const ours = shown.filter((s) => s.category === 'ours');
     const byRecipient = {};
@@ -117,17 +128,25 @@
       <div class="banner">🎁 お土産のページは<strong>しおり(PDF・画像)には載りません</strong>。自分用のメモとして使えます。</div>
       <section class="card">
         <div class="summary-card" style="padding:0;border:0;box-shadow:none;background:none">
+          ${giver === 'all' ? '' : `<div class="stat"><span class="stat-label">表示中</span><span class="stat-value">👤 ${U.esc(App.giverLabel(giver))}</span></div>`}
           <div class="stat"><span class="stat-label">合計予算</span><span class="stat-value">${U.yen(t.budget)}</span></div>
           <div class="stat"><span class="stat-label">合計実額</span><span class="stat-value">${U.yen(t.actual)}</span></div>
           <div class="stat"><span class="stat-label">残額(予算−実額)</span><span class="stat-value${t.rest < 0 ? ' minus' : ''}">${U.yen(t.rest)}</span></div>
           <div class="stat"><span class="stat-label">購入済み</span><span class="stat-value">${all.filter((s) => s.bought).length}<small> / ${all.length}件</small></span></div>
         </div>
-        <p class="note" style="margin:10px 0 0">内訳: 渡す相手用 予算${U.yen(gT.budget)}・実額${U.yen(gT.actual)} / 自分たち用 予算${U.yen(oT.budget)}・実額${U.yen(oT.actual)}</p>
+        <p class="note" style="margin:10px 0 0">区分: 渡す相手用 予算${U.yen(gT.budget)}・実額${U.yen(gT.actual)} / 自分たち用 予算${U.yen(oT.budget)}・実額${U.yen(oT.actual)}</p>
+        <p class="note" style="margin:4px 0 0">だれの分(全体): ${perGiver}</p>
       </section>
-      <div class="seg" role="group" aria-label="表示の絞り込み">
-        <button type="button" data-filter="all" class="${filter === 'all' ? 'on' : ''}">すべて</button>
-        <button type="button" data-filter="todo" class="${filter === 'todo' ? 'on' : ''}">未購入</button>
-        <button type="button" data-filter="bought" class="${filter === 'bought' ? 'on' : ''}">購入済み</button>
+      <div class="seg-row">
+        <div class="seg" role="group" aria-label="だれのお土産で絞り込み">
+          <button type="button" data-giver="all" class="${giver === 'all' ? 'on' : ''}">全員</button>
+          ${App.givers().map((g) => `<button type="button" data-giver="${g.key}" class="${giver === g.key ? 'on' : ''}">${U.esc(g.label)}</button>`).join('')}
+        </div>
+        <div class="seg" role="group" aria-label="購入状況で絞り込み">
+          <button type="button" data-filter="all" class="${filter === 'all' ? 'on' : ''}">すべて</button>
+          <button type="button" data-filter="todo" class="${filter === 'todo' ? 'on' : ''}">未購入</button>
+          <button type="button" data-filter="bought" class="${filter === 'bought' ? 'on' : ''}">購入済み</button>
+        </div>
       </div>
       <div>
         ${names.map((n) => groupHtml(`渡す相手: ${n}`, byRecipient[n])).join('')}
@@ -139,6 +158,12 @@
 
   M.init = (el) => {
     el.addEventListener('click', (e) => {
+      const g = e.target.closest('[data-giver]');
+      if (g) {
+        App.ui.souvenirGiver = g.dataset.giver;
+        App.saveUi();
+        return App.render();
+      }
       const f = e.target.closest('[data-filter]');
       if (f) {
         App.ui.souvenirFilter = f.dataset.filter;
