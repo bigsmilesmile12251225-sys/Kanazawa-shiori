@@ -313,7 +313,7 @@
       const items = App.data.packing[g.key];
       return `
         <div class="sh-pack-col p-${g.key}">
-          <h3 class="sh-pack-head">${g.label}</h3>
+          <h3 class="sh-pack-head">${U.esc(g.label)}</h3>
           ${items.length ? `<ul class="sh-checks">${items.map((it) => `<li class="${it.checked ? 'on' : ''}"><span class="sh-box">${it.checked ? '✓' : ''}</span><span>${U.esc(it.name)}</span></li>`).join('')}</ul>` : '<p class="sh-muted">なし</p>'}
         </div>`;
     }).join('');

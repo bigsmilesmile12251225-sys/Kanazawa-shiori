@@ -42,10 +42,11 @@
   };
   App.givers = () => App.GIVER_KEYS.map((key) => ({ key, label: App.giverLabel(key) }));
 
+  // 持ち物の区分。「自分」「妻」の見出しも呼び名で表示する
   App.PACK_GROUPS = [
-    { key: 'common', label: '共通' },
-    { key: 'me', label: '自分' },
-    { key: 'wife', label: '妻' },
+    { key: 'common', get label() { return '共通'; } },
+    { key: 'me', get label() { return App.giverLabel('me'); } },
+    { key: 'wife', get label() { return App.giverLabel('wife'); } },
   ];
 
   // 一般的な旅行の持ち物(初期値)

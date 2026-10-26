@@ -11,7 +11,7 @@
     const c = count(items);
     return `
       <section class="card pack-card">
-        <header class="pack-head"><h2>${g.label}</h2><span class="pack-count">${c.done} / ${c.all}</span></header>
+        <header class="pack-head"><h2>${U.esc(g.label)}</h2><span class="pack-count">${c.done} / ${c.all}</span></header>
         <div class="progress"><span style="width:${c.all ? (c.done / c.all) * 100 : 0}%"></span></div>
         ${items.length ? `<ul class="checklist">${items.map((it) => `
           <li class="${it.checked ? 'is-checked' : ''}">
@@ -19,7 +19,7 @@
             <button type="button" class="icon-btn" data-act="del" data-group="${g.key}" data-id="${it.id}" aria-label="「${U.esc(it.name)}」を削除">✕</button>
           </li>`).join('')}</ul>` : '<p class="empty">項目がありません</p>'}
         <form class="add-row" data-group="${g.key}">
-          <input type="text" name="name" placeholder="項目を追加" enterkeyhint="done" aria-label="${g.label}に項目を追加">
+          <input type="text" name="name" placeholder="項目を追加" enterkeyhint="done" aria-label="${U.esc(g.label)}に項目を追加">
           <button type="submit" class="btn btn-ai">追加</button>
         </form>
       </section>`;

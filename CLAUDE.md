@@ -61,14 +61,14 @@
 {
   schema: 1,
   trip: { title, catchphrase /* 表紙のキャッチコピー */, startDate: 'YYYY-MM-DD', members,
-          meName, wifeName /* 呼び名。お土産の「だれのお土産」に使う。空なら 自分 / 妻 */ },
+          meName, wifeName /* 呼び名。お土産の「だれのお土産」と持ち物の見出しに使う。空なら 自分 / 妻 */ },
   itinerary: [[item...], [item...], [item...]],   // 3日分
   //   item: { id, time:'HH:MM', title, place, memo, mapUrl, type: move|sight|meal|stay|shop }
   transport: [{ id, kind: shinkansen|express|local|bus|other, day: 0..2 | -1(未定),
                 depTime, arrTime, from, to, trainName, seat, price, method, booked, memo }],
   hotels: [{ id, name, address, checkIn, checkOut, nights: both|n1|n2, phone, mapUrl, price, memo }],
   restaurants: [{ id, name, day, time, people, phone, mapUrl, price, memo }],
-  packing: { common: [{ id, name, checked }], me: [...], wife: [...] },
+  packing: { common: [{ id, name, checked }], me: [...], wife: [...] },   // 見出しは 共通 / 呼び名 / 呼び名(App.PACK_GROUPS の label は getter)
   souvenirs: [{ id, category: gift|ours, giver: both|me|wife /* だれのお土産(共通/自分/妻) */, recipient, item, shop,
                 timingItemId,   // 行程itemのid(行程から選んだとき)
                 timingText,     // 自由入力のとき
@@ -134,6 +134,7 @@
 - [x] 「やること」タブ(⚠️メモの収集、完了チェック、出発までの日数、未完了件数のバッジ)
 - [x] 上記を Playwright で確認(新機能21項目、iPadの回帰テスト44項目すべて合格)
 - [x] お土産に「だれのお土産」(共通 / 自分 / 妻。表示名は「旅の基本」の呼び名)を追加。人ごとの絞り込み・合計・内訳。タブレット縦で「やること」のタブ名が2行になる問題も修正(13項目+回帰テスト合格)
+- [x] 持ち物の「自分 / 妻」の見出しも呼び名で表示(アプリ画面・しおりの両方)。呼び名は表示時にエスケープする
 
 ## 次にやること(アイデア・未着手)
 
