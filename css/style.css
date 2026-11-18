@@ -491,7 +491,25 @@ input[type="checkbox"] { width: 26px; height: 26px; accent-color: var(--enji); f
   background: linear-gradient(90deg, var(--kin-pale), var(--washi));
 }
 .pack-head h2 { font-size: 20px; }
-.pack-count { font-size: 14px; color: var(--ink-2); font-weight: 600; }
+.pack-count { font-size: 14px; color: var(--ink-2); font-weight: 600; margin-left: auto; margin-right: 10px; }
+.pack-head .btn-small { min-height: 40px; padding: 0 12px; }
+.pack-card.is-editing { border-color: var(--ai); box-shadow: 0 0 0 2px var(--ai-pale), var(--shadow); }
+.pack-edit-note { margin: 8px 16px 0; font-size: 13px; color: var(--ai); }
+.edit-row { padding: 4px 0; }
+.edit-name {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 4px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  word-break: break-word;
+  border-radius: 8px;
+}
+.edit-name:hover { background: var(--kin-pale); }
 .progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
 .progress > span { display: block; height: 100%; background: var(--ok); transition: width .2s; }
 .checklist { list-style: none; margin: 0; padding: 4px 8px; }

@@ -28,6 +28,9 @@
   App.memoForShiori = (memo) =>
     String(memo || '').split(/\r?\n/).filter((line) => !MARK.test(line)).join('\n').trim();
 
+  // しおり用の持ち物名: ⚠️から後ろ(やること)を除く。⚠️だけの項目は空文字になる
+  App.packNameForShiori = (name) => String(name || '').split(MARK)[0].trim();
+
   // すべてのToDoを、行程 → 交通 → 宿 → 店 → お土産 → 持ち物 の順に集める
   M.collect = () => {
     const d = App.data;

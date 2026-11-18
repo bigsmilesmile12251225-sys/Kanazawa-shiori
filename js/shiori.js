@@ -309,8 +309,12 @@
 
   /* ---------- 持ち物 ---------- */
   function packingHtml() {
+    const showTodo = opts().todoInShiori;
     const cols = App.PACK_GROUPS.map((g) => {
-      const items = App.data.packing[g.key];
+      // ⚠️(やること)の部分は、設定でオンにしない限り載せない
+      const items = App.data.packing[g.key]
+        .map((it) => (showTodo ? it : Object.assign({}, it, { name: App.packNameForShiori(it.name) })))
+        .filter((it) => it.name);
       return `
         <div class="sh-pack-col p-${g.key}">
           <h3 class="sh-pack-head">${U.esc(g.label)}</h3>
