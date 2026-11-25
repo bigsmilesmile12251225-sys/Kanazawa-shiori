@@ -75,7 +75,7 @@
     return r;
   };
 
-  // 「さき → たか へ 12,345円」
+  // 「妻 → 自分 へ 12,345円」(表示は呼び名)
   function answer(r) {
     if (!r.total) return { text: 'まだ精算する費用がありません', who: '', amount: 0 };
     if (r.balance === 0) return { text: '貸し借りはありません', who: '', amount: 0 };
