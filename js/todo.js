@@ -62,6 +62,7 @@
     App.PACK_GROUPS.forEach((g) => d.packing[g.key].forEach((p) => {
       add('持ち物', 'pack:' + p.id, p.name, `持ち物(${g.label})`, { tab: 'packing' });
     }));
+    d.settlement.extras.forEach((x) => add('精算', x.id, x.memo, `追加費用 ${x.title}`, { mod: 'settle', id: x.id }));
     return list;
   };
 
@@ -80,7 +81,7 @@
     return { label: '旅行', value: '終了', note: 'おかえりなさい' };
   }
 
-  const GROUP_ICON = { 行程: '🗓️', 交通: '🚄', 宿: '🏨', 予約した店: '🍽️', お土産: '🎁', 持ち物: '🧳' };
+  const GROUP_ICON = { 行程: '🗓️', 交通: '🚄', 宿: '🏨', 予約した店: '🍽️', お土産: '🎁', 持ち物: '🧳', 精算: '💴' };
   let current = [];
 
   M.render = (el) => {

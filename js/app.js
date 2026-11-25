@@ -4,7 +4,7 @@
   const { U } = App;
 
   App.modules = App.modules || {};
-  const TAB_KEYS = ['itinerary', 'transport', 'stay', 'packing', 'todo', 'souvenir', 'shiori'];
+  const TAB_KEYS = ['itinerary', 'transport', 'stay', 'packing', 'todo', 'souvenir', 'shiori', 'settle'];
   const panel = (key) => document.getElementById('panel-' + key);
 
   App.render = () => {

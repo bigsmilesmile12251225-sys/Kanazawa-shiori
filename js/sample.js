@@ -59,5 +59,20 @@
       { category: 'ours', giver: 'both', recipient: '', item: '九谷焼の豆皿', shop: '主計町のギャラリー', timingItemId: 's-d1-4', timingText: '', budget: 5000, actual: 5500, bought: true, photo: '', url: '', memo: '2枚組' },
       { category: 'ours', giver: 'me', recipient: '', item: '地酒(四合瓶)', shop: '金沢駅のお土産売り場', timingItemId: 's-d2-3', timingText: '', budget: 2500, actual: '', bought: false, photo: '', url: '', memo: '' },
     ],
+    settlement: {
+      traced: {
+        's-t1': { payer: 'me', share: 'both' },
+        's-t2': { payer: 'wife', share: 'both' },
+        's-t3': { payer: 'me', share: 'both' },
+        's-h1': { payer: 'me', share: 'both' },
+      },
+      extras: [
+        { id: 's-x1', category: 'transport', title: 'タクシー(金沢駅→宿)', day: 0, amount: 1800, payer: 'wife', share: 'both', memo: '' },
+        { id: 's-x2', category: 'hotel', title: '入湯税・夕食時の飲み物', day: 1, amount: 3200, payer: 'wife', share: 'both', memo: '' },
+        { id: 's-x3', category: 'other', title: '金沢21世紀美術館 入場料(2人)', day: 0, amount: 2800, payer: 'wife', share: 'both', memo: '' },
+        { id: 's-x4', category: 'other', title: '自分用のおつまみ', day: 2, amount: 900, payer: 'me', share: 'me', memo: '' },
+      ],
+      done: false,
+    },
   });
 })(window.App);

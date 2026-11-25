@@ -84,6 +84,8 @@
       budget: '', actual: '', bought: false, photo: '', url: '', memo: '',
     },
   };
+  // 精算の追加費用(category: transport=交通 / hotel=宿泊 / other=その他)
+  DEF.extra = { id: '', category: 'other', title: '', day: -1, amount: '', payer: '', share: 'both', memo: '' };
   App.DEF = DEF;
 
   const rec = (def, raw) => {
@@ -114,6 +116,8 @@
     },
     souvenirs: [],
     todoDone: {}, // ⚠️メモから作ったToDoの完了状態 { キー: true }
+    // 精算: traced = 交通・宿の各項目の { payer, share }(キーは元の項目のid)、extras = 追加費用
+    settlement: { traced: {}, extras: [], done: false },
     updatedAt: '',
   });
 
@@ -147,6 +151,22 @@
     if (raw.todoDone && typeof raw.todoDone === 'object') {
       Object.keys(raw.todoDone).forEach((k) => { if (raw.todoDone[k] === true) d.todoDone[k] = true; });
     }
+    const st = raw.settlement && typeof raw.settlement === 'object' ? raw.settlement : {};
+    const payerOk = (v) => (['me', 'wife'].includes(v) ? v : '');
+    const shareOk = (v) => (App.GIVER_KEYS.includes(v) ? v : 'both');
+    if (st.traced && typeof st.traced === 'object') {
+      Object.keys(st.traced).forEach((k) => {
+        const t = st.traced[k] || {};
+        d.settlement.traced[k] = { payer: payerOk(t.payer), share: shareOk(t.share) };
+      });
+    }
+    d.settlement.extras = list(DEF.extra, st.extras).map((x) => Object.assign(x, {
+      category: ['transport', 'hotel', 'other'].includes(x.category) ? x.category : 'other',
+      day: Number.isInteger(Number(x.day)) && Number(x.day) >= -1 && Number(x.day) <= 2 ? Number(x.day) : -1,
+      payer: payerOk(x.payer),
+      share: shareOk(x.share),
+    }));
+    d.settlement.done = st.done === true;
     d.updatedAt = raw.updatedAt || '';
     return d;
   };
@@ -174,6 +194,8 @@
     tab: 'itinerary',
     souvenirFilter: 'all',
     souvenirGiver: 'all',
+    settlePayer: 'all', // 精算の絞り込み: all / me / wife / none(未設定)
+    settleShare: 'all', // all / both / me / wife
     todoHideDone: false,
     shioriOpts: { cover: true, days: true, dayExtras: true, transport: true, stay: true, packing: true, todoInShiori: false },
   });
